@@ -1,0 +1,10 @@
+{
+  "name": "Telegram-server",
+  "description": "Twitter clone",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "express": "4.x",
+    "nlogger": "1.0.0"
+  }
+}
