@@ -1,10 +1,55 @@
 
 var express = require('express');
 var app = express();
-var logger = require('nlogger').logger(module);
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
 
+var logger = require('nlogger').logger(module);
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
+var session = require('express-session');
+var passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+app.use(express.static('public'));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(session({secret: 'deep secret', resave:true, saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy({
+  usernameField: 'user[id]',
+  passwordField: 'user[meta][password]'
+},
+  function(username, password, done) {
+    User.findOne({username: username}, function (err, user, info) {
+      if (err) {
+        logger.info('authentication error: ' + err);
+        return done(err); }
+      if (!user) { return done(null, false, "User not found"); }
+      if (!user.verifyPassword(password)) { return done(null, false, "Password does not match"); }
+      return done(null, user);
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+
+function findById(id, fn) {
+  if (users[id]) {
+    fn(null, users[id]);
+  } else {
+    fn(new Error('User ' + id + ' does not exist'));
+  }
+}
 // Route implementation
 var usersRouter = express.Router();
 
@@ -37,7 +82,16 @@ var users = {
 var usersAll = Object.keys(users).map(function(key) { return users[key]; });
 var following = usersAll.filter(function(user) { return user.followedByCurrentUser; });
 
-usersRouter.get('/:id', function(req, res) {
+function ensureAuthenticated(req, res, next){
+  if (req.isAuthenticated()){
+    return next();
+  }
+  else {
+    return res.status(403).end();
+  }
+}
+
+usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
   if(users[req.params.id]) {
     res.send({
       user: users[req.params.id]
@@ -56,29 +110,57 @@ usersRouter.post('/', function(req, res) {
       email: req.body.user.email,
       password: req.body.user.meta.password
     };
-    logger.info('Signed up new user: ' + req.body.user.id);
-    users[req.body.user.id] = user;
-    res.send({
-      user: user
-    });
-  };
-  if (req.body.user.meta.operation === 'login') {
-	var userFound = users[req.body.user.id];
-    if (userFound && (userFound.password === req.body.user.meta.password)){
-      logger.info('User logged in: ' + req.body.user.id);
-      res.send({
-        user: users[req.body.user.id]
-      });
+    var userFound = users[req.body.user.id];
+    if (userFound) {
+      logger.error('This user is already registered');
+      res.status(404).send('This user is already registered');
     }
     else {
-      logger.error('Invalid username/password');
-      res.status(404).send('Invalid username/password!');
+      logger.info('Signed up new user: ' + req.body.user.id);
+      users[req.body.user.id] = user;
+      req.logIn(user, function(err) {
+        if (err) {
+          logger.error('Login error: ' + err);
+          return res.status(500).end();
+        }
+        logger.info('Logged in user: ' + req.body.user.id)
+        res.send({ user: user});
+      });
     }
+  };
+  if (req.body.user.meta.operation === 'login') {
+    passport.authenticate('local', function(err, user, info) {
+      if (err) {
+        logger.error('Authentication error: ' + err);
+        return res.status(500).end(); }
+      if (!user) {
+        logger.error('Invalid login credentials for user: ' + req.body.user.id);
+        return res.status(404).send('Invalid username/password!');
+      }
+      req.logIn(user, function(err) {
+        if (err) {
+          logger.error('Login error: ' + err);
+          return res.status(500).end();
+        }
+        logger.info('Logged in user: ' + req.body.user.id)
+        res.send({ user: users[req.body.user.id]});
+      });
+    })(req, res);
   };
 
 });
 
 usersRouter.get('/', function(req, res) {
+  if (req.query.isAuthenticated){
+  {
+    if (req.isAuthenticated()){
+      return res.send({users: [req.user]});
+    }
+    else {
+      return res.send({users: []});
+    }
+  }
+  }
   if(req.query.following) {
     logger.info('Users following this user');
     res.send({
@@ -116,6 +198,11 @@ usersRouter.put('/:id', function(req, res) {
       user: users[userId]
     });
   };
+});
+
+usersRouter.get('/logout', function (req, res) {
+  req.logout();
+  res.sendStatus(200);
 });
 
 app.use('/api/users', usersRouter);
@@ -165,32 +252,26 @@ postsRouter.get('/', function(req, res) {
   };
 });
 
-postsRouter.post('/', function(req, res) {
+postsRouter.post('/', ensureAuthenticated, function(req, res) {
   if(req.body.post.meta.operation === 'createPost'){
-    postId++;
-    var post = {
-      id: postId,
-      author: req.body.post.author,
-      body: req.body.post.body,
-      repostedFrom: req.body.post.repostedFrom
-    };
-    posts.push(post);
-    logger.info('New post created: ' + postId);
-    res.send({
-      post: post
-    });
-
-  }
-});
-
-
-postsRouter.put('/:id', function(req, res) {
-  logger.info('Reposted post: ' + req.params.id);
-  res.send({
-    posts: {
-      id: req.params.id
+    if (req.user.id === req.body.post.author) {
+      postId++;
+      var post = {
+        id: postId,
+        author: req.body.post.author,
+        body: req.body.post.body,
+        repostedFrom: req.body.post.repostedFrom
+      };
+      posts.push(post);
+      logger.info('New post created: ' + postId);
+      res.send({
+        post: post
+      });
     }
-  });
+    else {
+      return res.status(401).end();
+    }
+  }
 });
 
 postsRouter.delete('/:id', function(req, res) {
