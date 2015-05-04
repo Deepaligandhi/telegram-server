@@ -1,56 +1,18 @@
 var logger = require('nlogger').logger(module);
 var ensureAuthenticated = require('./../middleware/ensureAuthenticated');
 var passport = require('./../authentication/index');
-var mongoose = require('./../db');
+var conn = require('./../db/index');
 var express = require('express');
 var postsRouter = express.Router();
 
-var Post = mongoose.model('Post');
+var Post = conn.model('Post');
+
 postsRouter.get('/', function(req, res) {
   if (req.query.dashboard){
-    var allPosts = [];
-    logger.info('All posts');
-    logger.info('User session: ' + req.user.id);
-    Post.find({}, function(err, posts){
-      if (err) {
-        logger.error("Error loading posts");
-        res.sendStatus(500);
-      }
-      posts.forEach(function(post){
-        var eachPost = {
-          id: post._id,
-          author: post.author,
-          body: post.body,
-          repostedFrom: post.repostedFrom
-        };
-        allPosts.push(eachPost);
-      });
-      res.send({
-        posts: allPosts
-      });
-    });
+    fetchDashboardPosts(req, res);
   };
   if (req.query.author) {
-    var authorPosts= [];
-    Post.find({author: req.query.author}, function(err, posts){
-      if (err) {
-        logger.error("Could not find posts for author ", req.query.author)
-        res.sendStatus(500);
-      }
-      posts.forEach(function(post){
-        var eachPost = {
-          id: post._id,
-          author: post.author,
-          body: post.body,
-          repostedFrom: post.repostedFrom
-        };
-        authorPosts.push(eachPost);
-      });
-      logger.info('Posts for ' + req.query.author);
-      res.send({
-        posts: authorPosts
-      });
-    });
+    fetchAuthorPosts(req, res);
   };
 });
 
@@ -90,5 +52,34 @@ postsRouter.delete('/:id', function(req, res) {
   logger.info('Post deleted for id: ' + req.param.id);
   res.status(204).end();
 });
+
+function fetchDashboardPosts(req, res) {
+  var allPosts = [];
+  logger.info('All posts');
+  logger.info('User session: ' + req.user.id);
+  Post.find({}, function(err, posts){
+    if (err) {
+      logger.error("Error loading posts");
+      res.sendStatus(500);
+    }
+    res.send({
+      posts: posts
+    });
+  });
+}
+
+function fetchAuthorPosts(req, res) {
+  var authorPosts= [];
+  Post.find({author: req.query.author}, function(err, posts){
+    if (err) {
+      logger.error("Could not find posts for author ", req.query.author)
+      res.sendStatus(500);
+    }
+    res.send({
+      posts: posts
+    });
+  });
+
+}
 
 module.exports = postsRouter;

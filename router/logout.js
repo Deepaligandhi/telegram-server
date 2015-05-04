@@ -4,7 +4,7 @@ var logger = require('nlogger').logger(module);
 
 router.get('/', function(req, res) {
   req.logout();
-  return res.send(true);
+  return res.status(204).end();
 });
 
 module.exports = router;
