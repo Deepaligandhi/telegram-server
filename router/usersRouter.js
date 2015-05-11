@@ -17,7 +17,7 @@ usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
     }
     if(userFound) {
       res.send({
-        user: userFound
+        user: userFound.toClient(req.params.id)
       });
     }
   });
@@ -40,7 +40,7 @@ usersRouter.get('/', function(req, res) {
   if (req.query.isAuthenticated){
     {
       if (req.isAuthenticated()){
-        return res.send({users: [req.user]});
+        return res.send({users: [req.user.toClient()]});
       }
       else {
         return res.send({users: []});
@@ -48,43 +48,71 @@ usersRouter.get('/', function(req, res) {
     }
   }
   if(req.query.following) {
-    logger.info('Users following this user');
-    res.send({
-      users: users
+    User.findOne({id: req.query.user}, function (err, user){
+        if (err) {
+          res.sendStatus(500);
+        }
+        User.find({id: {$in: user.following}}, function(err, users){
+          if (err) {
+            res.sendStatus(500);
+          }
+          var userList = [];
+          users.forEach(function(user){
+            var emberUser = user.toClient(req.user);
+            userList.push(emberUser);
+          })
+          logger.info('Users following this user: ', userList);
+          res.send({
+            users: userList
+          });
+        });
     });
   }
-  else {
-    logger.info('All users');
-    res.send({
-      users: users
-    });
+  if (req.query.follower) {
+      User.find({following: req.query.user}, function(err, users){
+          if (err) {
+            res.sendStatus(500);
+          }
+          var userList = [];
+          users.forEach(function(user){
+            var emberUser = user.toClient(req.user);
+            userList.push(emberUser);
+          })
+          logger.info('Followers: ', userList);
+          res.send({
+            users: userList
+          });
+      });
   }
 });
 
 
 usersRouter.put('/:id', function(req, res) {
   var userId = req.params.id;
+  logger.info(userId);
   if (req.body.user.meta.operation === 'followUser'){
-    var user = {
-      id: userId,
-      followedByCurrentUser: req.body.user.followedByCurrentUser
-    };
-    logger.info('Followed User ' + userId);
-    res.send({
-      user: users[userId]
+    User.follow(req.user, userId, function(err, userFollowed){
+      if (err) {
+        res.sendStatus(500);
+      }
+      logger.info(userFollowed);
+      res.send({
+        user: userFollowed.toClient(userFollowed)
+      });
+      logger.info('Followed User ' + userId);
     });
-  };
-
+  }
   if (req.body.user.meta.operation === 'unfollowUser'){
-    var user = {
-      id: userId,
-      followedByCurrentUser: false
-    };
-    logger.info('Unfollowed User ' + userId);
-    res.send({
-      user: users[userId]
+    User.unfollow(req.user, userId, function(err, userUnFollowed){
+      if (err) {
+        res.sendStatus(500);
+      }
+      res.send({
+        user: userUnFollowed.toClient()
+      });
+      logger.info('Unfollowed User ' + userId);
     });
-  };
+  }
 });
 
 
@@ -99,31 +127,11 @@ function signUpUser (req, res) {
       return res.status(404).send('This user is already registered');
     }
     else {
-      var encrypted = null;
-      bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(req.body.user.meta.password, salt, function(err, hash) {
-          if(err){
-            logger.error("Bcrypt error: ", err);
-            return res.sendStatus(500);
-          }
-          encrypted = hash;
-          logger.info(encrypted);
-
-          var user = {
-            id: req.body.user.id,
-            name: req.body.user.name,
-            email: req.body.user.email,
-            password: encrypted
-          };
-          var newUser = new User (user);
-          newUser.save(function(err) {
-            if (err) {
-              logger.error("Error creating user: ", user);
-              return res.sendStatus(500);
-            }
-          });
-          logger.info('Signed up new user: ' + req.body.user.id);
-          req.logIn(newUser, function(err) {
+      User.createUser(req.body.user, function(err, user){
+        if(err) {
+          return res.sendStatus(500);
+        }
+          req.logIn(user, function(err) {
             if (err) {
               logger.error('Login error: ' + err);
               return res.status(500).end();
@@ -132,8 +140,8 @@ function signUpUser (req, res) {
             logger.info('Session user: ' + req.session.passport.user);
             res.send({ user: user});
           });
-        });
       });
+
     }
   });
 }

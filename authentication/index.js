@@ -17,7 +17,7 @@ function(username, password, done) {
       return done(err);
     }
     if (!user) { return done(null, false, "User not found"); }
-    bcrypt.compare(password, user.password, function(err, res) {
+    user.checkPassword(password, function(err, res){
       if (err) {
         logger.error("Bcrypt error in comparing passwords");
         return done(err);
@@ -32,7 +32,7 @@ function(username, password, done) {
        }
       }
     });
-        //if (user.password !== password) { return done(null, false, "Password does not match for user"); }
+    //if (user.password !== password) { return done(null, false, "Password does not match for user"); }
     logger.info('user found : ' + user);
         //return done(null, user);
 

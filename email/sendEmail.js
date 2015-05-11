@@ -7,25 +7,31 @@ var fs = require('fs');
 var handlebars = require('handlebars');
 var templatePath = 'email/emailTemplate.hbs';
 
-sendEmail = exports;
+var sendEmail = exports;
 
 sendEmail.sendPasswordReset = function(email, password, done) {
-  var content = fs.readFileSync(templatePath, 'utf-8');
-  var body = handlebars.compile(content);
-
-  var message = {
-    from: mailgunFrom,
-    to: email,
-    subject: 'Password Reset',
-    html: body({password: password})
-  };
-
-  mailgun.messages().send(message, function (err, body) {
-    if(err) {
-      logger.info(err);
+  fs.readFile(templatePath, 'utf-8', function(err, content){
+    if (err) {
       return done(err);
     }
-    logger.info(body);
-    return done(null, body);
+    var body = handlebars.compile(content);
+    var message = {
+      from: mailgunFrom,
+      to: email,
+      subject: 'Password Reset',
+      html: body({password: password})
+    };
+
+    mailgun.messages().send(message, function (err, body) {
+      if(err) {
+        logger.info(err);
+        return done(err);
+      }
+      logger.info(body);
+      return done(null, body);
+    });
+
   });
+
+
 }
