@@ -17,7 +17,7 @@ usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
     }
     if(userFound) {
       res.send({
-        user: userFound.toClient(req.params.id)
+        user: userFound.toClient(req.user)
       });
     }
   });
@@ -25,6 +25,7 @@ usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
 
 
 usersRouter.post('/', function(req, res, next) {
+  console.log(req.body);
   if (req.body.user.meta.operation === 'signup'){
     signUpUser(req, res);
   };
@@ -33,6 +34,10 @@ usersRouter.post('/', function(req, res, next) {
   }
   if(req.body.user.meta.operation === 'reset') {
     resetPassword(req, res);
+  }
+  if(req.body.user.meta.operation === 'logout') {
+    req.logout();
+    return res.status(204).end();
   }
 });
 
@@ -60,7 +65,7 @@ usersRouter.get('/', function(req, res) {
           users.forEach(function(user){
             var emberUser = user.toClient(req.user);
             userList.push(emberUser);
-          })
+          });
           logger.info('Users following this user: ', userList);
           res.send({
             users: userList
@@ -90,25 +95,26 @@ usersRouter.get('/', function(req, res) {
 usersRouter.put('/:id', function(req, res) {
   var userId = req.params.id;
   logger.info(userId);
+  var currentUser = req.user;
   if (req.body.user.meta.operation === 'followUser'){
-    User.follow(req.user, userId, function(err, userFollowed){
+    currentUser.follow(userId, function(err, userFollowed){
       if (err) {
         res.sendStatus(500);
       }
       logger.info(userFollowed);
       res.send({
-        user: userFollowed.toClient(userFollowed)
+        user: currentUser.toClient(currentUser)
       });
       logger.info('Followed User ' + userId);
     });
   }
   if (req.body.user.meta.operation === 'unfollowUser'){
-    User.unfollow(req.user, userId, function(err, userUnFollowed){
+    currentUser.unfollow(userId, function(err, userUnFollowed){
       if (err) {
         res.sendStatus(500);
       }
       res.send({
-        user: userUnFollowed.toClient()
+        user: currentUser.toClient()
       });
       logger.info('Unfollowed User ' + userId);
     });
@@ -138,7 +144,7 @@ function signUpUser (req, res) {
             }
             logger.info('Logged in user: ' + req.body.user.id);
             logger.info('Session user: ' + req.session.passport.user);
-            res.send({ user: user});
+            res.send({ user: user.toClient()});
           });
       });
 
@@ -163,7 +169,7 @@ function loginUser (req, res) {
         }
         logger.info('Logged in user: ' + req.body.user.id);
         logger.info('Session user: ' + req.session.passport.user);
-        return res.send({ user: user});
+        return res.send({ user: user.toClient()});
       });
     })(req, res);
   }
@@ -191,7 +197,8 @@ function resetPassword (req, res) {
           }
           if (userFound) {
             logger.info('User found for email: ', email);
-            sendEmail.sendPasswordReset(email, newPass, function(err, body) {
+            var username = userFound.name;
+            sendEmail.sendPasswordReset(email, username, newPass, function(err, body) {
             if (body) {
               logger.info("Sent email");
               return res.send({users: []});

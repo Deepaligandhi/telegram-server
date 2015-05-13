@@ -6,6 +6,7 @@ var express = require('express');
 var postsRouter = express.Router();
 
 var Post = conn.model('Post');
+var User = conn.model('User');
 
 postsRouter.get('/', function(req, res) {
   if (req.query.dashboard){
@@ -59,11 +60,28 @@ function fetchDashboardPosts(req, res) {
   logger.info('User session: ' + req.user.id);
   Post.find({}, function(err, posts){
     if (err) {
-      logger.error("Error loading posts");
-      res.sendStatus(500);
+      logger.error("Error loading posts", err);
+      return res.sendStatus(500);
     }
-    res.send({
-      posts: posts
+    var authorList = [];
+    posts.forEach(function(post){
+      authorList.push(post.author);
+    });
+    User.find({id: {$in: authorList}}, function(err, users){
+      if (err) {
+        logger.error("Error loading users", err);
+        return res.sendStatus(500);
+      }
+      var userList = [];
+      users.forEach(function(user){
+        var emberUser = user.toClient();
+        userList.push(emberUser);
+      });
+      logger.info("Post Users: ", userList);
+      res.send({
+        posts: posts,
+        users: userList
+      });
     });
   });
 }

@@ -1,0 +1,7 @@
+{
+  "mailgun": {
+    "api_key": "key-febe0388557136fb4faf55ce9c98ec2c",
+    "domain": "sandbox76c83801599445239c982511f8776837.mailgun.org",
+    "from": "postmaster@sandbox76c83801599445239c982511f8776837.mailgun.org"
+  }
+}
