@@ -1,8 +1,8 @@
-var config = require("./../config/index.js");
-var api_key = config.get("mailgun:api_key");
+var config = require("./../config");
+var apiKey = config.get("mailgun:api_key");
 var domain = config.get("mailgun:domain");
 var mailgunFrom = config.get("mailgun:from");
-var mailgun = require('mailgun-js')({apiKey: api_key, domain: domain});
+var mailgun = require('mailgun-js')({apiKey: apiKey, domain: domain});
 var logger = require('nlogger').logger(module);
 var fs = require('fs');
 var handlebars = require('handlebars');

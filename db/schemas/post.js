@@ -8,4 +8,11 @@ var postSchema = new Schema({
   repostedFrom: String
 });
 
+
+postSchema.statics.createPost = function(post, done) {
+  var Post = this.model('Post');
+
+    Post.create(post, done);
+
+}
 module.exports = postSchema;

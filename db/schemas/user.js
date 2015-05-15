@@ -48,9 +48,7 @@ userSchema.statics.createUser = function(user, done) {
 }
 
 userSchema.methods.follow = function(userId, done) {
-  this.update({$addToSet: {following: userId}}, function(err, user){
-    return done(err, user);
-  });
+  this.update({$addToSet: {following: userId}}, done);
 }
 
 userSchema.methods.unfollow = function(userId, done) {
