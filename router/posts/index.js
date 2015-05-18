@@ -19,12 +19,7 @@ postsRouter.get('/', function(req, res) {
 postsRouter.post('/', ensureAuthenticated, function(req, res) {
   if(req.body.post.meta.operation === 'createPost'){
     if (req.user.id === req.body.post.author) {
-      var post = {
-        author: req.body.post.author,
-        body: req.body.post.body,
-        repostedFrom: req.body.post.repostedFrom
-      };
-      Post.createPost(post, function(err, post){
+      Post.create(req.body.post, function(err, post){
         if (err) {
           logger.error("Error creating post: ", post);
           return res.sendStatus(500);
@@ -48,9 +43,9 @@ postsRouter.delete('/:id', function(req, res) {
       logger.error("Error deleting post with id: ", req.param.id);
       return res.sendStatus(404);
     }
+    logger.info('Post deleted for id: ' + req.param.id);
+    res.status(204).end();
   });
-  logger.info('Post deleted for id: ' + req.param.id);
-  res.status(204).end();
 });
 
 module.exports = postsRouter;
