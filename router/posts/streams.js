@@ -25,7 +25,11 @@ streams.fetchDashboardPosts = function(req, res) {
       });
     },
     function getUsers(posts, done){
-      User.find({id: {$in: dashboardUsers}}, function(err, users){
+      var authors = [];
+      posts.forEach(function(post){
+        authors.push(post.author);
+      });
+      User.find({id: {$in: authors}}, function(err, users){
         if (err) {
           logger.error("Error loading users", err);
           return res.sendStatus(500);

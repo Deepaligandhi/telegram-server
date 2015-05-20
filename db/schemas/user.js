@@ -76,7 +76,7 @@ userSchema.statics.getFriends = function(user, done){
   var User = this.model('User');
   User.findOne({id: user}, function (err, user){
       if (err) {
-        res.sendStatus(500);
+        return res.sendStatus(500);
       }
       User.find({id: {$in: user.following}}, function(err, users){
         if (err) {

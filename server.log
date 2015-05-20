@@ -1,0 +1,27 @@
+2015-05-20 02:29:49.253 WARN  nlogger - Config file not found. Using default configuration.
+2015-05-20 02:29:49.866 INFO  main:11 - Listening on port %d3000
+2015-05-20 02:30:09.590 INFO  authentication/index:13 - Localstrategyxyz900150983cd24fb0d6963f7d28e17f72
+2015-05-20 02:30:09.596 INFO  router/users/account:32 - passport authenticate called for user false
+2015-05-20 02:30:09.597 ERROR router/users/account:38 - Invalid login credentials for user: xyz
+2015-05-20 02:33:57.967 INFO  authentication/index:13 - Localstrategybqeterd6e9c56d7f078d298ed4695d899effbe
+2015-05-20 02:33:57.973 INFO  router/users/account:32 - passport authenticate called for user false
+2015-05-20 02:33:57.974 ERROR router/users/account:38 - Invalid login credentials for user: bqeter
+2015-05-20 02:35:25.352 ERROR router/users/account:13 - This user is already registered
+2015-05-20 02:36:46.199 INFO  authentication/index:13 - Localstrategydeepsf598c0545e546f104f96c608456ab9b6
+2015-05-20 02:36:46.223 INFO  authentication/index:36 - user found : { _id: 554b3930c5e0a23d53f06e0b,
+  id: 'deeps',
+  name: 'deeps',
+  email: 'deepali.gandhi@gmail.com',
+  password: '$2a$10$s/zFn5IGGHO91qKRFzPh3OdMEeEqKimgQFRi1zrxxkINyquwBLnxm',
+  __v: 0,
+  following: [ 'hiccup', 'noni', 'varun' ] }
+2015-05-20 02:36:46.305 INFO  authentication/index:30 - Password mismatch
+2015-05-20 02:36:46.307 INFO  router/users/account:32 - passport authenticate called for user false
+2015-05-20 02:36:46.311 ERROR router/users/account:38 - Invalid login credentials for user: deeps
+2015-05-20 02:44:40.878 INFO  authentication/index:13 - Localstrategyfgfgfg12db3470b69a3684e0145d11595ffd31
+2015-05-20 02:44:40.883 INFO  router/users/account:32 - passport authenticate called for user false
+2015-05-20 02:44:40.883 ERROR router/users/account:38 - Invalid login credentials for user: fgfgfg
+2015-05-20 02:46:30.331 ERROR router/users/account:13 - This user is already registered
+2015-05-20 02:54:13.970 INFO  authentication/index:13 - Localstrategyabcd81dc9bdb52d04dc20036dbd8313ed055
+2015-05-20 02:54:13.975 INFO  router/users/account:32 - passport authenticate called for user false
+2015-05-20 02:54:13.975 ERROR router/users/account:38 - Invalid login credentials for user: abcd

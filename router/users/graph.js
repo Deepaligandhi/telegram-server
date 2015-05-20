@@ -5,6 +5,7 @@ var User = conn.model('User');
 var graph = module.exports;
 
 graph.findFollowing = function(req, res){
+  logger.info("following for profile: ", req.query.user);
   User.getFriends(req.query.user, function(err, users) {
     if (err) {
       res.sendStatus(500);
@@ -20,6 +21,7 @@ graph.findFollowing = function(req, res){
 }
 
 graph.findFollowers = function(req, res){
+  logger.info("followers for profile: ", req.query.user);
   User.getFollowers(req.query.user, function(err, users){
     if (err) {
       res.sendStatus(500);
@@ -40,11 +42,15 @@ graph.followUser = function(req, res){
   var currentUser = req.user;
   currentUser.follow(userId, function(err, userFollowed){
     if (err) {
-      res.sendStatus(500);
+      logger.error(err.message);
+      return res.sendStatus(500);
     }
-    logger.info(userFollowed);
+    var user = {
+      id: req.params.id,
+      followedByCurrentUser: true
+    }
     res.send({
-      user: currentUser.toClient(currentUser)
+      user: user
     });
     logger.info('Followed User ' + userId);
   });
@@ -56,10 +62,15 @@ graph.unfollowUser = function(req, res){
   var currentUser = req.user;
   currentUser.unfollow(userId, function(err, userUnFollowed){
     if (err) {
-      res.sendStatus(500);
+      logger.error(err.message);
+      return res.sendStatus(500);
+    }
+    var user = {
+      id: req.params.id,
+      followedByCurrentUser: false
     }
     res.send({
-      user: currentUser.toClient()
+      user: user
     });
     logger.info('Unfollowed User ' + userId);
   });
