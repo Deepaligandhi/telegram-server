@@ -5,8 +5,8 @@ var User = conn.model('User');
 var graph = module.exports;
 
 graph.findFollowing = function(req, res){
-  logger.info("following for profile: ", req.query.user);
-  User.getFriends(req.query.user, function(err, users) {
+  logger.info("following for profile: ", req.query.following);
+  User.getFriends(req.query.following, function(err, users) {
     if (err) {
       res.sendStatus(500);
     }
@@ -21,8 +21,7 @@ graph.findFollowing = function(req, res){
 }
 
 graph.findFollowers = function(req, res){
-  logger.info("followers for profile: ", req.query.user);
-  User.getFollowers(req.query.user, function(err, users){
+  User.getFollowers(req.query.follower, function(err, users){
     if (err) {
       res.sendStatus(500);
     }

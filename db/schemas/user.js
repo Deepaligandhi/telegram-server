@@ -90,8 +90,9 @@ userSchema.statics.getFriends = function(user, done){
 userSchema.statics.getFollowers = function(user, done){
   var User = this.model('User');
   User.find({following: user}, function(err, users){
-      return done(err, users);
+    return done(err, users);
   });
+
 }
 
 userSchema.methods.follow = function(userId, done) {

@@ -20,8 +20,17 @@ streams.fetchDashboardPosts = function(req, res) {
           logger.error("Error loading posts", err);
           return res.sendStatus(500);
         }
-        logger.info("Posts found: ", posts);
-        return done(err, posts);
+        var reposts = posts.map(function(post){
+          return post.repostedFrom;
+        })
+        Post.find({_id: {$in: reposts}}, function(err, reposts){
+          reposts.forEach(function(repost){
+              posts.push(repost);
+          });
+          logger.info("Posts found: ", posts);
+          return done(err, posts);
+        });
+
       });
     },
     function getUsers(posts, done){
@@ -29,6 +38,7 @@ streams.fetchDashboardPosts = function(req, res) {
       posts.forEach(function(post){
         authors.push(post.author);
       });
+      logger.info("Post author query: ", authors);
       User.find({id: {$in: authors}}, function(err, users){
         if (err) {
           logger.error("Error loading users", err);

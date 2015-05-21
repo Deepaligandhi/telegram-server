@@ -36,6 +36,7 @@ usersRouter.get('/', function(req, res) {
     return account.userAuthenticated(req, res);
   }
   if(req.query.following) {
+    logger.info("Following: ", req.query.following);
     return graph.findFollowing(req, res);
   }
   if (req.query.follower) {
