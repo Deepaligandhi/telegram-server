@@ -27,9 +27,8 @@ usersRouter.post('/', function(req, res, next) {
     case 'signup': return account.signUpUser(req, res);
     case 'login': return account.loginUser (req, res);
     case 'reset': return account.resetPassword(req, res);
-    case 'logout': { req.logout();
+    case 'logout':  req.logout();
         return res.status(204).end();
-      }
   }
 });
 

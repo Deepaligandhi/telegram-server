@@ -37,6 +37,7 @@ graph.findFollowers = function(req, res){
 
 graph.followUser = function(req, res){
   var userId = req.params.id;
+  logger.debug("Follow user: ", req.body);
   logger.info(userId);
   var currentUser = req.user;
   currentUser.follow(userId, function(err, userFollowed){
