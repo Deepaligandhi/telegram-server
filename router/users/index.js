@@ -4,6 +4,8 @@ var express = require('express');
 var usersRouter = express.Router();
 var account = require('./account');
 var graph = require('./graph');
+var conn = require('./../../db/index');
+var User = conn.model('User');
 
 usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
   User.findOne({id: req.params.id}, function(err, userFound) {
