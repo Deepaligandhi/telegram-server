@@ -1,11 +1,11 @@
-var logger = require('nlogger').logger(module);
-var ensureAuthenticated = require('./../../middleware/ensureAuthenticated');
-var passport = require('./../../authentication/index');
-var conn = require('./../../db/index');
-var express = require('express');
-var postsRouter = express.Router();
-var streams = require('./streams');
-var Post = conn.model('Post');
+var logger = require('nlogger').logger(module)
+  , ensureAuthenticated = require('./../../middleware/ensureAuthenticated')
+  , passport = require('./../../authentication/index')
+  , conn = require('./../../db/index')
+  , express = require('express')
+  , postsRouter = express.Router()
+  , streams = require('./streams')
+  , Post = conn.model('Post');
 
 postsRouter.get('/', function(req, res) {
   if (req.query.dashboard){

@@ -1,9 +1,9 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var bcrypt = require('bcrypt');
-var logger = require('nlogger').logger(module);
-var md5 = require('MD5');
-var generatePassword = require('password-generator');
+var mongoose = require('mongoose')
+  , Schema = mongoose.Schema
+  , bcrypt = require('bcrypt')
+  , logger = require('nlogger').logger(module)
+  , md5 = require('MD5')
+  , generatePassword = require('password-generator');
 
 var userSchema = new Schema({
   id: {type: String, unique: true},

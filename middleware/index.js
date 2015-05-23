@@ -1,12 +1,19 @@
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var passport = require('passport');
+var cookieParser = require('cookie-parser')
+  , bodyParser = require('body-parser')
+  , session = require('express-session')
+  , MongoStore = require('connect-mongostore')(session)
+  , passport = require('passport');
 
 function setupMiddleware(app) {
   app.use(cookieParser());
   app.use(bodyParser.json());
-  app.use(session({secret: 'keyboard cat', resave:false, saveUninitialized: true}));
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(session({
+    secret: 'my secret',
+    resave:false,
+    saveUninitialized: true,
+    store: new MongoStore({'db': 'sessions'})
+  }));
   app.use(passport.initialize());
   app.use(passport.session());
 }

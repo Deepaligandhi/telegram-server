@@ -1,12 +1,12 @@
-var config = require("./../config");
-var apiKey = config.get("mailgun:api_key");
-var domain = config.get("mailgun:domain");
-var mailgunFrom = config.get("mailgun:from");
-var mailgun = require('mailgun-js')({apiKey: apiKey, domain: domain});
-var logger = require('nlogger').logger(module);
-var fs = require('fs');
-var handlebars = require('handlebars');
-var templatePath = 'email/emailTemplate.hbs';
+var config = require("./../config")
+  , apiKey = config.get("mailgun:api_key")
+  , domain = config.get("mailgun:domain")
+  , mailgunFrom = config.get("mailgun:from")
+  , mailgun = require('mailgun-js')({apiKey: apiKey, domain: domain})
+  , logger = require('nlogger').logger(module)
+  , fs = require('fs')
+  , handlebars = require('handlebars')
+  , templatePath = 'email/emailTemplate.hbs';
 
 var sendEmail = exports;
 sendEmail.sendPasswordReset = function(email, username, password, done) {

@@ -1,11 +1,11 @@
-var logger = require('nlogger').logger(module);
-var ensureAuthenticated = require('./../../middleware/ensureAuthenticated');
-var express = require('express');
-var usersRouter = express.Router();
-var account = require('./account');
-var graph = require('./graph');
-var conn = require('./../../db/index');
-var User = conn.model('User');
+var logger = require('nlogger').logger(module)
+  , ensureAuthenticated = require('./../../middleware/ensureAuthenticated')
+  , express = require('express')
+  , usersRouter = express.Router()
+  , account = require('./account')
+  , graph = require('./graph')
+  , conn = require('./../../db/index')
+  , User = conn.model('User');
 
 usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
   User.findOne({id: req.params.id}, function(err, userFound) {
@@ -20,15 +20,14 @@ usersRouter.get('/:id', ensureAuthenticated, function(req, res) {
   });
 });
 
-
 usersRouter.post('/', function(req, res, next) {
+  logger.info("Request ", req.body.user.meta.operation);
   var operation = req.body.user.meta.operation;
   switch(operation) {
     case 'signup': return account.signUpUser(req, res);
     case 'login': return account.loginUser (req, res);
     case 'reset': return account.resetPassword(req, res);
-    case 'logout':  req.logout();
-        return res.status(204).end();
+    case 'logout': return account.logout(req, res);
   }
 });
 

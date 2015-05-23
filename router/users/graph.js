@@ -1,6 +1,6 @@
-var logger = require('nlogger').logger(module);
-var conn = require('./../../db/index');
-var User = conn.model('User');
+var logger = require('nlogger').logger(module)
+  , conn = require('./../../db/index')
+  , User = conn.model('User');
 
 var graph = module.exports;
 
@@ -37,7 +37,6 @@ graph.findFollowers = function(req, res){
 
 graph.followUser = function(req, res){
   var userId = req.params.id;
-  logger.debug("Follow user: ", req.body);
   logger.info(userId);
   var currentUser = req.user;
   currentUser.follow(userId, function(err, userFollowed){

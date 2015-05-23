@@ -1,10 +1,10 @@
-var logger = require('nlogger').logger(module);
-var conn = require('./../../db/index');
-var ensureAuthenticated = require('./../../middleware/ensureAuthenticated');
-var passport = require('./../../authentication/index');
-var async = require('async');
-var Post = conn.model('Post');
-var User = conn.model('User');
+var logger = require('nlogger').logger(module)
+  , conn = require('./../../db/index')
+  , ensureAuthenticated = require('./../../middleware/ensureAuthenticated')
+  , passport = require('./../../authentication/index')
+  , async = require('async')
+  , Post = conn.model('Post')
+  , User = conn.model('User');
 
 var streams = module.exports;
 

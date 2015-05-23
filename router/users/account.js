@@ -1,9 +1,10 @@
-var logger = require('nlogger').logger(module);
-var ensureAuthenticated = require('./../../middleware/ensureAuthenticated');
-var passport = require('./../../authentication/index');
-var conn = require('./../../db/index');
-var sendEmail = require('./../../email/sendEmail');
-var User = conn.model('User');
+var logger = require('nlogger').logger(module)
+  , ensureAuthenticated = require('./../../middleware/ensureAuthenticated')
+  , passport = require('./../../authentication/index')
+  , conn = require('./../../db/index')
+  , sendEmail = require('./../../email/sendEmail')
+  , User = conn.model('User');
+
 var account = module.exports;
 
 account.signUpUser = function (req, res) {
@@ -77,4 +78,9 @@ account.userAuthenticated = function(req, res){
     return res.send({users: [req.user.toClient()]});
   }
   return res.send({users: []});
+}
+
+account.logout = function(req, res){
+  req.logout();
+  return res.status(204).end();
 }

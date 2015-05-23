@@ -1,9 +1,9 @@
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var logger = require('nlogger').logger(module);
-var conn = require('./../db/index');
-var User = conn.model('User');
-var bcrypt = require('bcrypt');
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy
+  , logger = require('nlogger').logger(module)
+  , conn = require('./../db/index')
+  , User = conn.model('User')
+  , bcrypt = require('bcrypt');
 
 passport.use(new LocalStrategy({
   usernameField: 'user[id]',

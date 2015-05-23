@@ -19,6 +19,7 @@
     "MD5": "~1.2.1",
     "handlebars": "~3.0.3",
     "password-generator": "~1.0.0",
-    "nconf": "~0.7.1"
+    "nconf": "~0.7.1",
+    "connect-mongostore": "~0.1.4"
   }
 }

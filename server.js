@@ -1,6 +1,6 @@
-var express = require('express');
-var app = express();
-var logger = require('nlogger').logger(module);
+var express = require('express')
+  , app = express()
+  , logger = require('nlogger').logger(module);
 
 require('./middleware')(app);
 
