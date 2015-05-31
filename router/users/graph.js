@@ -74,3 +74,20 @@ graph.unfollowUser = function(req, res){
     logger.info('Unfollowed User ' + userId);
   });
 }
+
+graph.findTopUsers = function(req, res){
+  User.find({id: {$nin: req.user.following}})
+  .limit(5)
+  .exec(function(err, users){
+    if (err) {
+      res.sendStatus(500);
+    }
+    var userList = users.map(function(user) {
+      return user.toClient(req.user);
+    });
+    logger.info('All Users: ', userList);
+    res.send({
+      users: userList
+    });
+  });
+}

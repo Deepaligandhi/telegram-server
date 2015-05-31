@@ -42,6 +42,9 @@ usersRouter.get('/', function(req, res) {
   if (req.query.follower) {
       return graph.findFollowers(req, res);
   }
+  else {
+    return graph.findTopUsers(req, res);
+  }
 });
 
 
