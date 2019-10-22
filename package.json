@@ -12,7 +12,7 @@
     "express-session": "1.11.1",
     "passport": "0.2.1",
     "passport-local": "1.0.0",
-    "mongoose": "4.0.2",
+    "mongoose": "5.7.6",
     "bcrypt": "~0.8.2",
     "mailgun-js": "~0.6.9",
     "blueimp-md5": "~1.1.0",
